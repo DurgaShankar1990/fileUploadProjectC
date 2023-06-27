@@ -1,0 +1,37 @@
+window.addEventListener("load", (event) => {
+    document.querySelector('input[type="file"]').onchange = function() {
+        let file = this;
+        let fileData = file.files[0];
+        let filename = fileData.name
+        let extension = filename.substr(filename.lastIndexOf("."));
+        let allowedExtensionsRegx = /(\.jpg|\.jpeg|\.png|\.gif)$/i;
+        
+        var isAllowed = allowedExtensionsRegx.test(extension);
+
+        if(isAllowed){
+            let reader = new FileReader();
+            reader.readAsDataURL(fileData)
+            reader.onload = function() {
+                const URL = "/_hcms/api/fileUpload-endpoint"
+                const config = {
+                    url: URL,
+                    method : 'POST',
+                    headers: {
+                        'Accept': 'application/json, application/xml, text/plain, text/html, *.*',
+                        'Content-Type': 'application/json',
+                    },
+                    data : { 'imgData': reader.result , 'fileName': filename }
+                }
+                axios(config).then(function(response) {
+                    console.log(response.data)
+                }).catch(function(error) {
+                    console.log( JSON.stringify(error))
+                });
+            }; 
+        }else{
+            alert("Invalid File Type.");
+            return false;
+        }
+        
+    } 
+});
